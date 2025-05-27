@@ -214,10 +214,18 @@ public class Map {
         for (Position p : path) {
             result.add("A[" + p.x() + "][" + p.y() + "]");
         }
+        for(int i=0;i<map.length;i++) {
+            for(int j=0;j<map[i].length;j++) {
+                if (map[i][j] != pastPath) {
+                    map[i][j]=wall;
+                }
+            }
+        }
+        updateAndPause();
         return result.toString();
     }
 
-    public String formatOutput(ArrayList<Position> path) {
+    public String formatOutput2(ArrayList<Position> path) {
         int[][] visual = new int[xRange()][yRange()];
         for (Position p : path) {
             visual[p.x()][p.y()] = 1;
@@ -229,8 +237,7 @@ public class Map {
                 sb.append(visual[i][j] == 1 ? " 1 " : "   ");
                 if (j < yRange() - 1) sb.append(",");
             }
-            sb.append("]
-                    ");
+            sb.append("]");
         }
         return sb.toString();
     }
