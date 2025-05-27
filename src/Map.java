@@ -3,17 +3,83 @@ package src;
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.Random;
 
 public class Map {
+
+    public static int[][] mapInput = new int[][]{
+            {0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 1, 1, 0, 1, 0, 0, 0},
+            {0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
+            {0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
+            {1, 1, 1, 1, 1, 1, 1, 1, 1, 0}
+    };
+
     protected int[][] map;
+
+    public int[][] getMap() {
+        return map;
+    }
     final MapViewer mapViewer;
-    private int updateDelayMillis = 200; // default 200ms
+    private int updateDelayMillis = 200;
+
+    public static final int outOfBound = -1;
+    public static final int wall = 0;
+    public static final int unchecked = 1;
+    public static final int checked = 2;
+    public static final int deadRoute = 4;
+    public static final int pastPath = 3;
+
+    public Map(int[][] map) {
+        this.map = map.clone();
+        initMap();
+        mapViewer = new MapViewer(this);
+    }
+
+    private void initMap() {
+        for (int i = 0; i < xRange(); i++) {
+            for (int j = 0; j < yRange(); j++) {
+                map[i][j] = (map[i][j] == 1) ? 1 : 0;
+            }
+        }
+    }
+
+    public int xRange() {
+        return map.length;
+    }
+
+    public int yRange() {
+        return map[0].length;
+    }
+
+    public int get(Position p) {
+        return get(p.x(), p.y());
+    }
+
+    public int get(int x, int y) {
+        if (x >= 0 && x < xRange() && y >= 0 && y < yRange()) {
+            return map[x][y];
+        } else {
+            return outOfBound;
+        }
+    }
+
+    public void set(int x, int y, int value) {
+        map[x][y] = value;
+    }
+
+    public void set(Position p, int value) {
+        set(p.x(), p.y(), value);
+    }
 
     public void setUpdateDelay(int millis) {
         this.updateDelayMillis = millis;
     }
+
     private void updateAndPause() {
         try {
             SwingUtilities.invokeAndWait(mapViewer::repaint);
@@ -22,111 +88,7 @@ public class Map {
             e.printStackTrace();
         }
     }
-    private void update(){
-        try {
-            SwingUtilities.invokeAndWait(mapViewer::repaint);
-        } catch (InterruptedException | InvocationTargetException e) {
-            throw new RuntimeException(e);
-        }
-    }
 
-    public boolean isAvailable(int status) {
-        return status<1;
-    }
-    public boolean isWall(int status) {
-        return status==wall;
-    }
-    public boolean unchecked(int status) {
-        return status== unchecked;
-    }
-    public boolean checking(int status) {
-        return status== checked;
-    }
-    public boolean deadRoute(int status) {
-        return status==deadRoute;
-    }
-    public boolean pastPath(int status) {
-        return status==pastPath;
-    }
-    public int numOfUnchecked(Position p){
-        return numOfUnchecked(p.x(),p.y());
-    }
-    public int numOfUnchecked(int x,int y) {
-        int count=0;
-        if(unchecked(get(x+1,y))){
-            count++;
-        }
-        if(unchecked(get(x,y+1))){
-            count++;
-        }
-        if(unchecked(get(x-1,y))){
-            count++;
-        }
-        if(unchecked(get(x,y-1))){
-            count++;
-        }
-        return count;
-    }
-    public final int outOfBound=2;
-    public final int wall=1;
-    public final int unchecked=0;
-    public final int checked=-1;
-    public final int deadRoute=-2;
-    public final int pastPath=-3;
-    public Map(int[][] map) {
-        this.map = map.clone();
-        mapViewer=new MapViewer(this);
-    }
-    public int[][] getMap() {
-        return map;
-    }
-    public int get(Position p){
-        return get(p.x(),p.y());
-    }
-    public int get(int x,int y) {
-        if(x>=0&&x<map.length&&y>=0&&y<map[0].length) {
-            return map[x][y];
-        }else{
-            return outOfBound;
-        }
-    }
-    public void set(int x,int y,int value) {
-        map[x][y]=value;
-    }
-    public void set(Position p,int value) {
-        set(p.x(),p.y(),value);
-    }
-    public int distance1(Position p1, Position p2) {
-        return Math.abs(p1.x()-p2.x())+Math.abs(p1.y()-p2.y());
-    }
-    public double distance(Position p1, Position p2) {
-        return Math.abs(p1.x()-p2.x())+Math.abs(p1.y()-p2.y());
-    }
-    public ArrayList<Position> getUncheckedSurrounding(Position p) {
-        Position[] positions = getSurrounding(p);
-        ArrayList<Position> surroundings=new ArrayList<>();
-        for(Position p1:positions){
-            if(unchecked(get(p1))){
-                surroundings.add(p1);
-            }
-        }
-        return surroundings;
-    }
-
-    public ArrayList<Position> getCheckedSurrounding(Position p) {
-        Position[] positions = getSurrounding(p);
-        ArrayList<Position> surroundings=new ArrayList<>();
-        for(Position p1:positions){
-            if(checked==(get(p1))){
-                surroundings.add(p1);
-            }
-        }
-        return surroundings;
-    }
-    public Position[] getSurrounding(Position p) {
-        return new Position[]{new Position(p.x()+1,p.y()), new Position(p.x(),p.y()+1),
-                new Position(p.x()-1,p.y()), new Position(p.x(),p.y()-1)};
-    }
     public void showMapWindow() {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Map Viewer");
@@ -138,197 +100,150 @@ public class Map {
         });
     }
 
-    public static <T> void removeInterval(ArrayList<T> path, int start, int end) {
-        if (start > end) {
-            removeInterval(path, end, start);
-            return;
-        }
-        for (int i = end - 1; i >start; i--) {
-            path.remove(i);
-        }
-    }
-
-    public void findShortCut(Position p,ArrayList<Position> path) {
-        ArrayList<Position> checkedSurroundings=getCheckedSurrounding(p);
-        for(Position p1:checkedSurroundings){
-            if(path.contains(p1)&&path.contains(p)){
-                removeInterval(path,path.indexOf(p1),path.indexOf(p));
-
+    private void resetMap() {
+        for (int i = 0; i < xRange(); i++) {
+            for (int j = 0; j < yRange(); j++) {
+                map[i][j] = (map[i][j] == wall) ? wall : unchecked;
             }
         }
-
     }
 
-    public String findPath(Position start,Position end) {
-        showMapWindow();
-        ArrayList<Position> path=new ArrayList<>();
+    public String autoFindPath() {
+        for (int j = 0; j < yRange(); j++) {
+            Position p = new Position(0, j);
+            if (get(p) == unchecked) {
+                String result = tryFindPath(p);
+                if (result != null) return result;
+            }
+        }
+        for (int i = 1; i < xRange(); i++) {
+            Position p = new Position(i, yRange() - 1);
+            if (get(p) == unchecked) {
+                String result = tryFindPath(p);
+                if (result != null) return result;
+            }
+        }
+        for (int j = yRange() - 2; j >= 0; j--) {
+            Position p = new Position(xRange() - 1, j);
+            if (get(p) == unchecked) {
+                String result = tryFindPath(p);
+                if (result != null) return result;
+            }
+        }
+        for (int i = xRange() - 2; i > 0; i--) {
+            Position p = new Position(i, 0);
+            if (get(p) == unchecked) {
+                String result = tryFindPath(p);
+                if (result != null) return result;
+            }
+        }
+        return "No valid path found.";
+    }
+
+    private String tryFindPath(Position start) {
+        resetMap();
+        ArrayList<Position> path = new ArrayList<>();
         path.add(start);
-        set(start,checked);
-        findPathRecur(start,end,path);
-        for(Position p1:path){
-            set(p1,pastPath);
+        set(start, checked);
+        if (findPathRecur(start, path) == 0) {
+            for (Position p1 : path) {
+                set(p1, pastPath);
+            }
+            return formatOutput(path);
         }
-        return path.toString();
+        for (Position p1 : path) {
+            set(p1, deadRoute);
+        }
+        return null;
     }
-    public int findPathRecur(Position start,Position end,ArrayList<Position> path) {
+
+    public int findPathRecur(Position start, ArrayList<Position> path) {
         updateAndPause();
-        System.out.println(start+" "+end);
-        System.out.println(mapString());
-        if(get(start)!=pastPath){
-            set(start,checked);
+        if (get(start) != pastPath) {
+            set(start, checked);
         }
-        if(start.equals(end)){
-            path.add(start);
+        if (isEnd(start, path.getFirst()) && !start.equals(path.getFirst())) {
             return 0;
         }
-        ArrayList<Position> surroundings=getUncheckedSurrounding(start);
-        if(surroundings.isEmpty()){
-            return 1;
-        }
-        //sorting the longest distance to shortest
-        surroundings.sort((o1, o2) -> -Double.compare(distance(o1, end),distance(o2, end)));
-        for(int i=surroundings.size()-1;i>=0;i--){
-            set(surroundings.get(i),checked);
-            path.add(surroundings.getLast());
-            int code=findPathRecur(surroundings.get(i),end,path);
-            if(code==0){
-                //if(path.contains(surroundings.get(i))){
-                //    findShortCut(surroundings.get(i),path);
-                //}
-                System.out.println(path);
-                return 0;
+        for (Position next : getSurrounding(start)) {
+            if (get(next) == unchecked) {
+                set(next, checked);
+                path.add(next);
+                int result = findPathRecur(next, path);
+                if (result == 0) {
+                    return 0;
+                }
+                path.remove(path.size() - 1);
+                set(next, deadRoute);
             }
-            set(surroundings.get(i),deadRoute);
-            surroundings.removeLast();
-            path.removeLast();
         }
         return 1;
     }
 
-    public static String makeTable(String[][] content){
-        int n_col=0;//the max number of column
-        for(int r=0;r<content.length;r++){
-            if(content[r].length>n_col){
-                n_col=content[r].length;
-            }
-        }//get the max number of the columns from every rows
-        int[] list_n_colChars=new int[n_col];//list of number of chars in each column
-        for(int r=0;r<content.length;r++){
-            for(int c=0;c<content[r].length;c++){
-                if(content[r][c].length()>list_n_colChars[c]){
-                    list_n_colChars[c]=content[r][c].length();
-                }
-            }
+    public boolean isEnd(Position p, Position start) {
+        if (!(p.x() == 0 || p.x() == xRange() - 1 || p.y() == 0 || p.y() == yRange() - 1)) return false;
+        if (p.equals(start)) return true;
+        boolean onTop = start.x() == 0;
+        boolean onBottom = start.x() == xRange() - 1;
+        boolean onLeft = start.y() == 0;
+        boolean onRight = start.y() == yRange() - 1;
+        int edgeCount = (onTop ? 1 : 0) + (onBottom ? 1 : 0) + (onLeft ? 1 : 0) + (onRight ? 1 : 0);
+        if (edgeCount >= 2) return true;
+        boolean pTop = p.x() == 0;
+        boolean pBottom = p.x() == xRange() - 1;
+        boolean pLeft = p.y() == 0;
+        boolean pRight = p.y() == yRange() - 1;
+        if (onTop && (pLeft || pRight)) return true;
+        if (onBottom && (pLeft || pRight)) return true;
+        if (onLeft && (pTop || pBottom)) return true;
+        if (onRight && (pTop || pBottom)) return true;
+        return false;
+    }
+
+    public Position[] getSurrounding(Position p) {
+        return new Position[]{
+                new Position(p.x() + 1, p.y()),
+                new Position(p.x(), p.y() + 1),
+                new Position(p.x() - 1, p.y()),
+                new Position(p.x(), p.y() - 1)
+        };
+    }
+
+    public String formatOutput(ArrayList<Position> path) {
+        ArrayList<String> result = new ArrayList<>();
+        for (Position p : path) {
+            result.add("A[" + p.x() + "][" + p.y() + "]");
         }
-        int n_maxChars=0;
-        for(int c=0;c<n_col;c++){
-            if(list_n_colChars[c]>n_maxChars){
-                n_maxChars=list_n_colChars[c];
-            }
+        return result.toString();
+    }
+
+    public String formatOutput(ArrayList<Position> path) {
+        int[][] visual = new int[xRange()][yRange()];
+        for (Position p : path) {
+            visual[p.x()][p.y()] = 1;
         }
-        n_maxChars++;
-        //create the String full of ' ' to fill up the interval.
-        String spaces=" ".repeat(n_maxChars);
-        StringBuilder sb=new StringBuilder();
-        for(int r=0;r<content.length;r++){
-            for(int c=0;c<content[r].length;c++){
-                sb.append(content[r][c]).append(spaces,content[r][c].length(),list_n_colChars[c]+1);
+        StringBuilder sb = new StringBuilder();
+        for (int i = 0; i < xRange(); i++) {
+            sb.append("[");
+            for (int j = 0; j < yRange(); j++) {
+                sb.append(visual[i][j] == 1 ? " 1 " : "   ");
+                if (j < yRange() - 1) sb.append(",");
             }
-            sb.append("\n");
+            sb.append("]
+                    ");
         }
         return sb.toString();
     }
-    public String mapString(){
-        String[][] strs=new String[map.length][map[0].length];
-        for(int i=0;i<map.length;i++){
-            for(int j=0;j<map[i].length;j++){
-                strs[i][j]=switch (map[i][j]){
-                    case 0 -> " ";
-                    case 1 -> "■";
-                    case -1 -> ".";
-                    case -2 -> "0";
-                    case -3 -> "+";
-                    default -> "?";
-                };
-            }
-        }
-        return makeTable(strs);
-    }
-    public static int[][] generatePuzzle(int width, int height, Position start, Position end, double wallProbability) {
-        int[][] map = new int[height][width];
-
-        // Initialize map with all cells as wall
-        for (int[] row : map) {
-            Arrays.fill(row, 1); // Wall
-        }
-
-        // Create ensured path
-        Random rand = new Random();
-        Position current = new Position(start.x(), start.y());
-        map[current.x()][current.y()] = 0;
-
-        while (!current.equals(end)) {
-            ArrayList<Position> options = new ArrayList<>();
-
-            if (current.x() < end.x()) options.add(new Position(current.x() + 1, current.y()));
-            if (current.y() < end.y()) options.add(new Position(current.x(), current.y() + 1));
-            if (current.x() > end.x()) options.add(new Position(current.x() - 1, current.y()));
-            if (current.y() > end.y()) options.add(new Position(current.x(), current.y() - 1));
-
-            // Randomly choose next step
-            if (options.isEmpty()) break;
-            Position next = options.get(rand.nextInt(options.size()));
-            map[next.x()][next.y()] = 0;
-            current = next;
-        }
-
-        // Randomly remove some walls (add empty space), but not on ensured path
-        for (int i = 0; i < height; i++) {
-            for (int j = 0; j < width; j++) {
-                if (map[i][j] == 1 && rand.nextDouble() > wallProbability) {
-                    map[i][j] = 0; // Make space
-                }
-            }
-        }
-
-        return map;
-    }
-    public static int[][] generateMap(long seed){
-        int[][] bigMap = new int[30][30];
-        long ms=System.currentTimeMillis();
-        System.out.println(ms);
-        Random rand = new Random(seed==0?ms:seed);
-
-        // Fill with open paths
-        for (int i = 0; i < 30; i++) {
-            for (int j = 0; j < 30; j++) {
-                bigMap[i][j] = (rand.nextDouble() < 0.35) ? 1 : 0; // 30% chance wall
-            }
-        }
-
-        // Ensure start and end are open
-        bigMap[0][0] = 0;
-        bigMap[29][29] = 0;
-        return bigMap;
-    }
 
     public static void main(String[] args) {
-        Map m = new Map(new int[][]{
-                {0,0,0,0,0},
-                {0,1,0,1,1},
-                {1,0,0,0,0},
-                {0,0,0,1,1},
-                {1,1,0,0,0},
-        });
-        Map m1 = new Map(generatePuzzle(100,100,
-                new Position(0,0),new Position(99,99),0.4));
-        m.setUpdateDelay(1000);
-        m.showMapWindow();
-
-        new Thread(() -> {
-            System.out.println(m.findPath(new Position(0, 0), new Position(4, 4)));
-        }).start();
+        helperMethod(new Map(mapInput));
     }
 
+    public static void helperMethod(Map m) {
+        m.setUpdateDelay(1);
+        m.showMapWindow();
+        new Thread(() -> {
+            System.out.println(m.autoFindPath());
+        }).start();
+    }
 }
-

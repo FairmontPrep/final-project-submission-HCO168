@@ -9,4 +9,7 @@ public record Position(int x, int y) implements Comparable<Position> {
     public int compareTo(Position o) {
         return 0;
     }
+    public boolean equals(Position p) {
+        return this.x == p.x && this.y == p.y;
+    }
 }

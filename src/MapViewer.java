@@ -34,11 +34,11 @@ public class MapViewer extends JPanel {
 
     private Color getColor(int status) {
         return switch (status) {
-            case 0 -> Color.WHITE;       // Unchecked
-            case 1 -> Color.BLACK;       // Wall
-            case -1 -> Color.BLUE;       // Checked
-            case -2 -> Color.RED;        // Dead Route
-            case -3 -> Color.GREEN;      // Past Path
+            case Map.unchecked -> Color.WHITE;       // Unchecked
+            case Map.wall -> Color.BLACK;       // Wall
+            case Map.checked -> Color.BLUE;       // Checked
+            case Map.deadRoute -> Color.RED;        // Dead Route
+            case Map.pastPath -> Color.GREEN;      // Past Path
             default -> Color.GRAY;       // Out-of-bounds or unknown
         };
     }
