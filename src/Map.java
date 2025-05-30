@@ -9,8 +9,14 @@ public class Map {
     public static void initializeTestMap(){
         ArrayList<ArrayList<Integer>> test_array_2;
         test_array_2 = new ArrayList<>();
-        //paste code here
-        //todo
+        test_array_2.add(new ArrayList<>(Arrays.asList(1, 0, 0, 1, 0, 0, 0, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(0, 0, 0, 1, 0, 0, 0, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(0, 0, 0, 1, 0, 0, 1, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(9, 0, 0, 1, 0, 0, 0, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(0, 0, 0, 1, 0, 0, 0, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(0, 0, 0, 1, 0, 0, 0, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(0, 0, 0, 1, 1, 1, 0, 0)));
+        test_array_2.add(new ArrayList<>(Arrays.asList(1, 0, 0, 1, 1, 1, 1, 1)));
         mapInput=new int[test_array_2.size()][test_array_2.get(0).size()];
         for(int i=0; i<test_array_2.size(); i++){
             for(int j=0; j<test_array_2.get(i).size(); j++){
@@ -257,11 +263,12 @@ public class Map {
     }
 
     public static void main(String[] args) {
-        helperMethod(new Map(mapInput));
+        helperMethod();
     }
 
-    public static void helperMethod(Map m) {
+    public static void helperMethod() {
         initializeTestMap();
+        Map m=new Map(mapInput);
         m.setUpdateDelay(100);
         m.showMapWindow();
         new Thread(() -> {
