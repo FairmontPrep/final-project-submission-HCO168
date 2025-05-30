@@ -10,7 +10,6 @@ public class Map {
         ArrayList<ArrayList<Integer>> test_array_2;
         test_array_2 = new ArrayList<>();
         //paste code here
-        
         //todo
         mapInput=new int[test_array_2.size()][test_array_2.get(0).size()];
         for(int i=0; i<test_array_2.size(); i++){
