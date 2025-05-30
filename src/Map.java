@@ -3,20 +3,35 @@ package src;
 import javax.swing.*;
 import java.lang.reflect.InvocationTargetException;
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class Map {
+    public static void initializeTestMap(){
+        ArrayList<ArrayList<Integer>> test_array_2;
+        test_array_2 = new ArrayList<>();
+        //paste code here
+        
+        //todo
+        mapInput=new int[test_array_2.size()][test_array_2.get(0).size()];
+        for(int i=0; i<test_array_2.size(); i++){
+            for(int j=0; j<test_array_2.get(i).size(); j++){
+                mapInput[i][j]=test_array_2.get(i).get(j);
+            }
+        }
+
+    }
 
     public static int[][] mapInput = new int[][]{
             {0, 1, 1, 1, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
             {0, 0, 0, 1, 1, 0, 1, 0, 0, 0},
-            {0, 0, 0, 0, 0, 0, 1, 0, 0, 0},
-            {0, 0, 0, 1, 1, 1, 1, 1, 1, 1},
+            {0, 0, 0, 1, 0, 0, 0, 0, 0, 0},
+            {0, 0, 0, 1, 0, 1, 1, 1, 1, 1},
             {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
             {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
             {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
             {0, 0, 0, 1, 0, 0, 0, 0, 0, 1},
-            {1, 1, 1, 1, 1, 1, 1, 1, 1, 0}
+            {1, 1, 0, 1, 1, 1, 1, 1, 1, 0}
     };
 
     protected int[][] map;
@@ -247,7 +262,8 @@ public class Map {
     }
 
     public static void helperMethod(Map m) {
-        m.setUpdateDelay(1);
+        initializeTestMap();
+        m.setUpdateDelay(100);
         m.showMapWindow();
         new Thread(() -> {
             System.out.println(m.autoFindPath());
